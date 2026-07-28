@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Armchair,
   Coffee,
   DoorOpen,
   ElevatorIcon,
@@ -123,9 +124,9 @@ function RoomBox({
   return (
     <button
       onClick={onSelect}
-      style={{ minHeight: `${64 + room.capacity * 5}px` }}
+      style={{ minHeight: `${64 + room.capacity * 5}px`, flexGrow: room.capacity }}
       className={cn(
-        "group relative flex w-full min-w-0 shrink-0 items-center justify-between gap-2 border-2 border-solid p-3 pt-5 text-left shadow-sm transition-colors",
+        "group relative flex w-full min-w-0 items-center justify-between gap-2 border-2 border-solid p-3 pt-5 text-left shadow-sm transition-colors",
         "bg-sky-50 dark:bg-sky-950/20",
         available
           ? "border-primary/50 hover:brightness-95 dark:hover:brightness-125"
@@ -178,6 +179,23 @@ function RoomBox({
         <DoorOpen className="size-3" />
       </span>
     </button>
+  );
+}
+
+/** Open lounge seating in the guest area, alongside the bookable rooms. */
+function WaitingLounge() {
+  return (
+    <div
+      style={{ minHeight: "80px", flexGrow: 6 }}
+      className="flex w-full min-w-0 flex-col items-center justify-center gap-2 rounded-md border border-border bg-muted/30 p-3 text-muted-foreground"
+    >
+      <div className="flex items-center gap-2.5">
+        <Armchair className="size-5" />
+        <Armchair className="size-5" />
+        <Armchair className="size-5" />
+      </div>
+      <span className="text-[11px] font-medium">待合スペース</span>
+    </div>
   );
 }
 
@@ -288,7 +306,7 @@ function OpenWorkspace({ children }: { children?: React.ReactNode }) {
   return (
     <div
       style={{ minHeight: "260px" }}
-      className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-md border border-border bg-muted/30 p-3"
+      className="flex min-w-0 flex-1 self-start flex-col gap-2.5 rounded-md border border-border bg-muted/30 p-3"
     >
       <p className="truncate text-[11px] font-medium text-muted-foreground">
         執務室(フリーアドレス席・18席)
@@ -379,21 +397,22 @@ export function FloorMap({
                     />
                   );
                 })}
+                <WaitingLounge />
               </div>
             </div>
 
             {/* 廊下: entrance opens directly onto it, with the EV/stairs core nearby, then open walkway */}
             <div className="flex flex-col items-center gap-4 border-x border-border/60 bg-background py-6">
               <EntranceStrip />
-              {/* EV/stairs form one core; restroom/pantry are a separate nook nearby */}
+              {/* EV/stairs form one core; restroom/pantry are a separate nook, offset diagonally so the toilet doesn't face the elevator */}
               <div className="flex flex-col items-center gap-3">
                 <div className="grid grid-cols-2 gap-2">
                   <UtilityBadge icon={ElevatorIcon} label="EV" colorClass="bg-slate-600" />
                   <UtilityBadge icon={Stairs} label="階段" colorClass="bg-slate-500" />
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <UtilityBadge icon={Toilet} label="トイレ" colorClass="bg-sky-500" />
                   <UtilityBadge icon={Coffee} label="給湯室" colorClass="bg-emerald-600" />
+                  <UtilityBadge icon={Toilet} label="トイレ" colorClass="bg-sky-500" />
                 </div>
               </div>
               <div className="flex w-full flex-1 flex-col items-center gap-2">
@@ -412,7 +431,7 @@ export function FloorMap({
               <p className="truncate px-1 text-[11px] font-medium text-muted-foreground">
                 執務室エリア
               </p>
-              <div className="flex min-h-0 flex-1 items-start gap-3">
+              <div className="flex min-h-0 flex-1 gap-3">
                 <OpenWorkspace>
                   {boothSeat &&
                     (() => {
