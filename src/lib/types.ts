@@ -18,6 +18,8 @@ export type Reservation = {
   title: string;
   organizer: string;
   attendees: number;
+  /** Names of participants, in addition to the organizer. */
+  members: string[];
 };
 
 export type ReservationDraft = {
@@ -28,4 +30,5 @@ export type ReservationDraft = {
   title: string;
   organizer: string;
   attendees: number;
+  members: string[];
 };

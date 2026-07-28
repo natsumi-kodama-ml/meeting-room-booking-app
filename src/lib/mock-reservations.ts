@@ -15,6 +15,7 @@ export function createInitialReservations(today: Date): Reservation[] {
       title: "週次定例",
       organizer: "田中 太郎",
       attendees: 5,
+      members: ["佐藤 美咲", "鈴木 拓真"],
     },
     {
       id: "seed-2",
@@ -25,6 +26,7 @@ export function createInitialReservations(today: Date): Reservation[] {
       title: "パートナー打合せ",
       organizer: "佐藤 美咲",
       attendees: 4,
+      members: ["田中 太郎", "高橋 大輔"],
     },
     {
       id: "seed-3",
@@ -35,6 +37,7 @@ export function createInitialReservations(today: Date): Reservation[] {
       title: "プロジェクトキックオフ",
       organizer: "鈴木 拓真",
       attendees: 8,
+      members: ["佐藤 美咲", "山田 智也"],
     },
     {
       id: "seed-4",
@@ -45,6 +48,7 @@ export function createInitialReservations(today: Date): Reservation[] {
       title: "採用面接",
       organizer: "高橋 大輔",
       attendees: 3,
+      members: ["中村 優子"],
     },
     {
       id: "seed-5",
@@ -55,6 +59,7 @@ export function createInitialReservations(today: Date): Reservation[] {
       title: "1on1",
       organizer: "山田 智也",
       attendees: 2,
+      members: [],
     },
     {
       id: "seed-6",
@@ -65,6 +70,7 @@ export function createInitialReservations(today: Date): Reservation[] {
       title: "1on1",
       organizer: "中村 優子",
       attendees: 2,
+      members: [],
     },
     {
       id: "seed-7",
@@ -75,6 +81,7 @@ export function createInitialReservations(today: Date): Reservation[] {
       title: "朝会",
       organizer: "小林 玲奈",
       attendees: 4,
+      members: ["松本 結衣"],
     },
     {
       id: "seed-8",
@@ -85,6 +92,7 @@ export function createInitialReservations(today: Date): Reservation[] {
       title: "全社会議リハーサル",
       organizer: "松本 結衣",
       attendees: 10,
+      members: ["小林 玲奈", "鈴木 拓真"],
     },
     {
       id: "seed-9",
@@ -95,6 +103,7 @@ export function createInitialReservations(today: Date): Reservation[] {
       title: "月次経営会議",
       organizer: "高橋 大輔",
       attendees: 9,
+      members: ["田中 太郎"],
     },
     {
       id: "seed-10",
@@ -105,6 +114,7 @@ export function createInitialReservations(today: Date): Reservation[] {
       title: "来客対応(A社様)",
       organizer: "田中 太郎",
       attendees: 6,
+      members: ["佐藤 美咲"],
     },
   ];
 }

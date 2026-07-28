@@ -89,3 +89,12 @@ export function freeGaps(reservations: Reservation[], roomId: string, date: stri
 export function formatMinutesLabel(minutes: number): string {
   return minutesToTime(minutes);
 }
+
+/** Whether `name` is the organizer or a listed member of the reservation. */
+export function isMyReservation(reservation: Reservation, name: string): boolean {
+  const trimmed = name.trim();
+  if (!trimmed) return false;
+  return (
+    reservation.organizer === trimmed || reservation.members.includes(trimmed)
+  );
+}

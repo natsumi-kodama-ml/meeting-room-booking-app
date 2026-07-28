@@ -38,6 +38,7 @@ import {
   UsersThree,
 } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
+import { useCurrentUser } from "@/components/current-user-provider";
 
 const STEPS = ["日付", "時間帯", "会議室", "詳細", "確認"] as const;
 
@@ -61,14 +62,21 @@ export function BookingDialog({
   reservations,
   onConfirm,
 }: BookingDialogProps) {
+  const { myName } = useCurrentUser();
   const [step, setStep] = useState(seed.roomId ? 1 : 0);
   const [date, setDate] = useState(seed.date);
   const [startTime, setStartTime] = useState(seed.startTime);
   const [endTime, setEndTime] = useState(seed.endTime);
   const [roomId, setRoomId] = useState<string | null>(seed.roomId);
   const [title, setTitle] = useState("");
-  const [organizer, setOrganizer] = useState("");
+  const [organizer, setOrganizer] = useState(myName);
   const [attendees, setAttendees] = useState(1);
+  const [membersText, setMembersText] = useState("");
+
+  const members = membersText
+    .split(/[、,]/)
+    .map((m) => m.trim())
+    .filter(Boolean);
 
   const timeOptions = businessTimeOptions();
   const endTimeOptions = timeOptions.filter(
@@ -99,6 +107,7 @@ export function BookingDialog({
       title: title.trim(),
       organizer: organizer.trim(),
       attendees,
+      members,
     });
     onOpenChange(false);
     toast.success("予約を確定しました", {
@@ -306,6 +315,18 @@ export function BookingDialog({
                   </p>
                 )}
               </div>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="members">参加メンバー(任意)</Label>
+                <Input
+                  id="members"
+                  value={membersText}
+                  onChange={(e) => setMembersText(e.target.value)}
+                  placeholder="例: 佐藤 美咲、鈴木 拓真"
+                />
+                <p className="text-xs text-muted-foreground">
+                  読点(、)またはカンマ区切りで入力すると、その人の画面で「参加」とハイライトされます
+                </p>
+              </div>
             </div>
           )}
 
@@ -330,6 +351,11 @@ export function BookingDialog({
                 <UsersThree className="size-4 text-muted-foreground" />
                 {attendees}名(予約者: {organizer})
               </div>
+              {members.length > 0 && (
+                <div className="text-sm text-muted-foreground">
+                  メンバー: {members.join("、")}
+                </div>
+              )}
               <div className="border-t border-border/70 pt-3 text-sm">
                 <span className="text-muted-foreground">会議名: </span>
                 {title}

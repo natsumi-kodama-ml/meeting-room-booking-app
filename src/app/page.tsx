@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Plus } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { ReservationProvider, useReservations } from "@/components/reservation-provider";
+import { CurrentUserProvider } from "@/components/current-user-provider";
+import { CurrentUserControl } from "@/components/current-user-control";
 import { DateNav } from "@/components/timeline/date-nav";
 import { TimelineGrid } from "@/components/timeline/timeline-grid";
 import { BookingDialog } from "@/components/booking/booking-dialog";
@@ -35,7 +37,7 @@ function defaultSlotForNow(): { startTime: string; endTime: string } {
 }
 
 function BookingApp() {
-  const { reservations, addReservation } = useReservations();
+  const { reservations, addReservation, removeReservation } = useReservations();
   const [selectedDate, setSelectedDate] = useState(() => new Date());
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogKey, setDialogKey] = useState(0);
@@ -88,10 +90,13 @@ function BookingApp() {
               会議室の空き状況を確認し、そのまま予約できます
             </p>
           </div>
-          <Button onClick={openForNewReservation} className="gap-1.5">
-            <Plus className="size-4" />
-            予約する
-          </Button>
+          <div className="flex items-center gap-2">
+            <CurrentUserControl />
+            <Button onClick={openForNewReservation} className="gap-1.5">
+              <Plus className="size-4" />
+              予約する
+            </Button>
+          </div>
         </header>
 
         <DateNav date={selectedDate} onChange={setSelectedDate} />
@@ -100,6 +105,7 @@ function BookingApp() {
           date={selectedDate}
           reservations={reservations}
           onSlotSelect={openForSlot}
+          onDeleteReservation={removeReservation}
         />
       </div>
 
@@ -109,6 +115,7 @@ function BookingApp() {
           reservations={reservations}
           onOpenNewBooking={openForNewReservation}
           onOpenRoomBooking={openForRoomToday}
+          onDeleteReservation={removeReservation}
         />
       </div>
 
@@ -126,8 +133,10 @@ function BookingApp() {
 
 export default function Home() {
   return (
-    <ReservationProvider>
-      <BookingApp />
-    </ReservationProvider>
+    <CurrentUserProvider>
+      <ReservationProvider>
+        <BookingApp />
+      </ReservationProvider>
+    </CurrentUserProvider>
   );
 }

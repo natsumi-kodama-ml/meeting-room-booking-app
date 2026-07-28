@@ -28,9 +28,15 @@ type TimelineGridProps = {
     startTime: string;
     endTime: string;
   }) => void;
+  onDeleteReservation: (id: string) => void;
 };
 
-export function TimelineGrid({ date, reservations, onSlotSelect }: TimelineGridProps) {
+export function TimelineGrid({
+  date,
+  reservations,
+  onSlotSelect,
+  onDeleteReservation,
+}: TimelineGridProps) {
   const dateKey = formatDateKey(date);
   const hourMarks = businessHourMarks();
   const showNowLine = isSameDate(date, new Date());
@@ -132,6 +138,7 @@ export function TimelineGrid({ date, reservations, onSlotSelect }: TimelineGridP
                       key={r.id}
                       reservation={r}
                       style={{ left: `${left}%`, width: `${width}%` }}
+                      onDelete={onDeleteReservation}
                     />
                   );
                 })}

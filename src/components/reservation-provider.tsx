@@ -7,6 +7,7 @@ import { createInitialReservations } from "@/lib/mock-reservations";
 type ReservationContextValue = {
   reservations: Reservation[];
   addReservation: (input: Omit<Reservation, "id">) => void;
+  removeReservation: (id: string) => void;
 };
 
 const ReservationContext = createContext<ReservationContextValue | null>(null);
@@ -23,9 +24,13 @@ export function ReservationProvider({ children }: { children: React.ReactNode })
     setReservations((prev) => [...prev, reservation]);
   }, []);
 
+  const removeReservation = useCallback((id: string) => {
+    setReservations((prev) => prev.filter((r) => r.id !== id));
+  }, []);
+
   const value = useMemo(
-    () => ({ reservations, addReservation }),
-    [reservations, addReservation]
+    () => ({ reservations, addReservation, removeReservation }),
+    [reservations, addReservation, removeReservation]
   );
 
   return (

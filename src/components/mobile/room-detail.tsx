@@ -1,13 +1,21 @@
 "use client";
 
-import { CaretLeft, MapPin, Plus, UsersThree } from "@phosphor-icons/react";
+import { CaretLeft, MapPin, Plus, TrashSimple, UsersThree } from "@phosphor-icons/react";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Room, Reservation } from "@/lib/types";
-import { reservationsForRoomOnDate, currentReservation } from "@/lib/availability";
+import {
+  reservationsForRoomOnDate,
+  currentReservation,
+  isMyReservation,
+} from "@/lib/availability";
 import { RoomStatusBadge } from "@/components/mobile/room-status-badge";
 import { isRoomAvailableNow } from "@/lib/availability";
 import { formatDateLabel } from "@/lib/time";
+import { useCurrentUser } from "@/components/current-user-provider";
+import { cn } from "@/lib/utils";
 
 type RoomDetailProps = {
   room: Room;
@@ -17,6 +25,7 @@ type RoomDetailProps = {
   nowMinutes: number;
   onBack: () => void;
   onBook: () => void;
+  onDeleteReservation: (id: string) => void;
 };
 
 export function RoomDetail({
@@ -27,7 +36,16 @@ export function RoomDetail({
   nowMinutes,
   onBack,
   onBook,
+  onDeleteReservation,
 }: RoomDetailProps) {
+  const { myName } = useCurrentUser();
+
+  function handleDelete(r: Reservation) {
+    onDeleteReservation(r.id);
+    toast.success("予約を削除しました", {
+      description: `${r.title} ${r.startTime}-${r.endTime}`,
+    });
+  }
   const todays = reservationsForRoomOnDate(reservations, room.id, date);
   const available = isRoomAvailableNow(reservations, room.id, date, nowMinutes);
   const ongoing = currentReservation(reservations, room.id, date, nowMinutes);
@@ -80,19 +98,70 @@ export function RoomDetail({
           </p>
         ) : (
           <div className="flex flex-col divide-y divide-border/70 rounded-xl bg-card px-4 shadow-sm">
-            {todays.map((r) => (
-              <div key={r.id} className="flex items-center justify-between gap-3 py-3">
+            {todays.map((r) => {
+              const mine = isMyReservation(r, myName);
+              return (
+              <div
+                key={r.id}
+                className={cn(
+                  "flex items-center justify-between gap-3 py-3",
+                  mine && "-mx-4 border-l-[3px] border-accent-foreground bg-accent/60 px-4"
+                )}
+              >
                 <div className="flex min-w-0 flex-col">
-                  <p className="truncate text-sm font-medium">{r.title}</p>
+                  <div className="flex items-center gap-1.5">
+                    <p className="truncate text-sm font-medium">{r.title}</p>
+                    {mine && (
+                      <span className="shrink-0 rounded-full bg-accent px-1.5 py-0.5 text-[10px] font-medium text-accent-foreground">
+                        参加
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs text-muted-foreground">
                     予約者: {r.organizer} ・ {r.attendees}名
                   </p>
                 </div>
-                <p className="shrink-0 text-sm text-muted-foreground">
-                  {r.startTime}-{r.endTime}
-                </p>
+                <div className="flex shrink-0 items-center gap-2">
+                  <p className="text-sm text-muted-foreground">
+                    {r.startTime}-{r.endTime}
+                  </p>
+                  <Popover>
+                    <PopoverTrigger
+                      render={
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          aria-label="この予約を削除"
+                        />
+                      }
+                    >
+                      <TrashSimple className="size-4 text-muted-foreground" />
+                    </PopoverTrigger>
+                    <PopoverContent
+                      align="end"
+                      className="w-56"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="flex flex-col gap-2 p-1">
+                        <p className="text-sm">
+                          「{r.title}」を削除しますか？
+                        </p>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          className="gap-1.5"
+                          onClick={() => handleDelete(r)}
+                        >
+                          <TrashSimple className="size-3.5" />
+                          削除する
+                        </Button>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

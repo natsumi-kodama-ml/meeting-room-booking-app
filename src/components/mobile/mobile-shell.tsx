@@ -11,6 +11,7 @@ import { AvailableNowList } from "@/components/mobile/available-now-list";
 import { TodayScheduleList } from "@/components/mobile/today-schedule-list";
 import { RoomDirectoryList } from "@/components/mobile/room-directory-list";
 import { RoomDetail } from "@/components/mobile/room-detail";
+import { CurrentUserControl } from "@/components/current-user-control";
 
 type Tab = "now" | "today" | "rooms";
 
@@ -24,12 +25,14 @@ type MobileShellProps = {
   reservations: Reservation[];
   onOpenNewBooking: () => void;
   onOpenRoomBooking: (roomId: string) => void;
+  onDeleteReservation: (id: string) => void;
 };
 
 export function MobileShell({
   reservations,
   onOpenNewBooking,
   onOpenRoomBooking,
+  onDeleteReservation,
 }: MobileShellProps) {
   const [tab, setTab] = useState<Tab>("now");
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
@@ -50,10 +53,13 @@ export function MobileShell({
           <h1 className="text-base font-semibold leading-tight">会議室予約</h1>
           <p className="text-xs text-muted-foreground">{formatDateLabel(now)}</p>
         </div>
-        <Button size="sm" onClick={onOpenNewBooking} className="gap-1">
-          <Plus className="size-3.5" />
-          予約する
-        </Button>
+        <div className="flex items-center gap-1.5">
+          <CurrentUserControl size="sm" />
+          <Button size="sm" onClick={onOpenNewBooking} className="gap-1">
+            <Plus className="size-3.5" />
+            予約する
+          </Button>
+        </div>
       </header>
 
       <main className="flex-1 overflow-y-auto px-4 py-4 pb-20">
@@ -66,6 +72,7 @@ export function MobileShell({
             nowMinutes={nowMinutes}
             onBack={() => setSelectedRoomId(null)}
             onBook={() => onOpenRoomBooking(selectedRoom.id)}
+            onDeleteReservation={onDeleteReservation}
           />
         ) : (
           <>
