@@ -125,7 +125,7 @@ function RoomBox({
       onClick={onSelect}
       style={{ minHeight: `${64 + room.capacity * 5}px` }}
       className={cn(
-        "group relative flex w-full min-w-0 flex-1 items-center justify-between gap-2 border-2 border-solid p-3 pt-5 text-left shadow-sm transition-colors",
+        "group relative flex w-full min-w-0 shrink-0 items-center justify-between gap-2 border-2 border-solid p-3 pt-5 text-left shadow-sm transition-colors",
         "bg-sky-50 dark:bg-sky-950/20",
         available
           ? "border-primary/50 hover:brightness-95 dark:hover:brightness-125"
@@ -183,24 +183,34 @@ function RoomBox({
 
 function EntranceStrip() {
   return (
-    <div className="flex min-h-12 w-full flex-1 items-center justify-center gap-1.5 rounded-md border border-dashed border-border bg-background text-muted-foreground">
+    <div className="flex min-h-12 w-full shrink-0 items-center justify-center gap-1.5 rounded-md border border-dashed border-border bg-background text-muted-foreground">
       <DoorOpen className="size-3.5 shrink-0" />
       <span className="text-[11px] font-medium">エントランス・受付</span>
     </div>
   );
 }
 
-function UtilityRoom({
+/** Small solid-color icon badge, like building-directory signage (EV / restroom / etc). */
+function UtilityBadge({
   icon: Icon,
   label,
+  colorClass,
 }: {
   icon: typeof ElevatorIcon;
   label: string;
+  colorClass: string;
 }) {
   return (
-    <div className="flex min-w-16 flex-1 flex-col items-center justify-center gap-1 rounded-md border border-border bg-background p-2.5 text-muted-foreground sm:min-w-0 sm:rounded-sm">
-      <Icon className="size-4 shrink-0" />
-      <span className="text-center text-[10px] leading-tight font-medium sm:leading-none sm:[writing-mode:vertical-rl] sm:tracking-wide">
+    <div className="flex shrink-0 flex-col items-center gap-1">
+      <div
+        className={cn(
+          "flex size-9 items-center justify-center rounded-lg text-white shadow-sm",
+          colorClass
+        )}
+      >
+        <Icon weight="fill" className="size-5" />
+      </div>
+      <span className="text-center text-[9px] leading-none font-medium text-muted-foreground">
         {label}
       </span>
     </div>
@@ -260,19 +270,30 @@ function BoothSeat({
   );
 }
 
+/** One desk pod/cluster, separated from neighboring pods by an aisle. */
+function DeskBlock({ count }: { count: number }) {
+  return (
+    <div className="grid grid-cols-2 gap-1 rounded-sm bg-background/60 p-1.5">
+      {Array.from({ length: count }).map((_, i) => (
+        <div
+          key={i}
+          className="aspect-[3/2] rounded-[2px] border border-foreground/20 bg-foreground/[0.06]"
+        />
+      ))}
+    </div>
+  );
+}
+
 function OpenWorkspace({ children }: { children?: React.ReactNode }) {
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-2 rounded-md border border-border bg-muted/30 p-2.5">
       <p className="truncate text-[11px] font-medium text-muted-foreground">
         執務室(フリーアドレス席)
       </p>
-      <div className="grid grid-cols-6 gap-1 sm:grid-cols-5">
-        {Array.from({ length: 24 }).map((_, i) => (
-          <div
-            key={i}
-            className="aspect-[3/2] rounded-[2px] border border-foreground/20 bg-foreground/[0.06]"
-          />
-        ))}
+      <div className="flex flex-wrap gap-2.5">
+        <DeskBlock count={6} />
+        <DeskBlock count={6} />
+        <DeskBlock count={6} />
       </div>
       <div className="flex items-center gap-1.5 rounded-sm border border-border bg-background px-2 py-1.5 text-muted-foreground">
         <Package className="size-3.5 shrink-0" />
@@ -334,7 +355,6 @@ export function FloorMap({
               来客スペース
             </p>
             <div className="flex min-h-0 flex-1 flex-col gap-3">
-              <EntranceStrip />
               {reception.map((room) => {
                 const { available, statusLabel } = statusFor(room);
                 return (
@@ -351,12 +371,24 @@ export function FloorMap({
             </div>
           </div>
 
-          {/* 共用部: circulation core, shown as small rooms off the corridor */}
-          <div className="flex flex-row flex-wrap justify-center gap-2 rounded-md border border-border/60 bg-muted/20 p-2 sm:flex-col sm:flex-nowrap sm:justify-between sm:rounded-none sm:border-0 sm:border-x sm:border-border/60 sm:bg-muted/20 sm:p-1.5 sm:py-8">
-            <UtilityRoom icon={ElevatorIcon} label="EV" />
-            <UtilityRoom icon={Stairs} label="階段" />
-            <UtilityRoom icon={Toilet} label="トイレ" />
-            <UtilityRoom icon={Coffee} label="給湯室" />
+          {/* 廊下: entrance opens directly onto it, with the EV/stairs core nearby, then open walkway */}
+          <div className="flex flex-col items-center gap-3 rounded-md border border-border/60 bg-background p-3 sm:gap-4 sm:rounded-none sm:border-0 sm:border-x sm:border-border/60 sm:bg-background sm:py-6">
+            <EntranceStrip />
+            <div className="flex flex-row flex-wrap justify-center gap-2 sm:flex-col">
+              <UtilityBadge icon={ElevatorIcon} label="EV" colorClass="bg-slate-600" />
+              <UtilityBadge icon={Stairs} label="階段" colorClass="bg-slate-500" />
+              <UtilityBadge icon={Toilet} label="トイレ" colorClass="bg-sky-500" />
+              <UtilityBadge icon={Coffee} label="給湯室" colorClass="bg-emerald-600" />
+            </div>
+            <div className="hidden w-full flex-1 flex-col items-center gap-2 sm:flex">
+              <span
+                className="text-[10px] tracking-[0.3em] text-muted-foreground"
+                style={{ writingMode: "vertical-rl" }}
+              >
+                廊下
+              </span>
+              <div className="w-px flex-1 border-l border-dashed border-border/70" />
+            </div>
           </div>
 
           {/* 執務室エリア: open workspace (with an embedded box-seat nook) + enclosed meeting rooms */}
@@ -364,7 +396,7 @@ export function FloorMap({
             <p className="truncate px-1 text-[11px] font-medium text-muted-foreground">
               執務室エリア
             </p>
-            <div className="flex min-h-0 flex-1 flex-col gap-3 sm:flex-row">
+            <div className="flex min-h-0 flex-1 flex-col gap-3 sm:flex-row sm:items-start">
               <OpenWorkspace>
                 {boothSeat &&
                   (() => {
