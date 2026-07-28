@@ -40,6 +40,17 @@ export function formatDateLabel(date: Date): string {
   })`;
 }
 
+/**
+ * Minutes-of-day to treat as "now" for a given date: the real current time
+ * when viewing today, or business start when browsing another day (so
+ * future/past dates read as "the whole day is still ahead").
+ */
+export function effectiveNowMinutes(date: Date): number {
+  const now = new Date();
+  if (!isSameDate(date, now)) return BUSINESS_START_HOUR * 60;
+  return now.getHours() * 60 + now.getMinutes();
+}
+
 export function businessTimeOptions(): string[] {
   const options: string[] = [];
   for (

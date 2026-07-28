@@ -16,6 +16,7 @@ import {
   BUSINESS_END_HOUR,
   BUSINESS_START_HOUR,
   SLOT_MINUTES,
+  effectiveNowMinutes,
   formatDateKey,
   minutesToTime,
 } from "@/lib/time";
@@ -82,11 +83,11 @@ function BookingApp() {
     setDialogOpen(true);
   }
 
-  function openForRoomToday(roomId: string) {
+  function openForRoom(roomId: string) {
     setEditingReservation(null);
     setSeed({
       roomId,
-      date: formatDateKey(new Date()),
+      date: formatDateKey(selectedDate),
       ...defaultSlotForNow(),
     });
     setDialogKey((k) => k + 1);
@@ -126,13 +127,7 @@ function BookingApp() {
         </header>
 
         <div className="flex flex-wrap items-center justify-between gap-3">
-          {desktopView === "timeline" ? (
-            <DateNav date={selectedDate} onChange={setSelectedDate} />
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              現在の空き状況を表示しています
-            </p>
-          )}
+          <DateNav date={selectedDate} onChange={setSelectedDate} />
           <div className="flex w-fit items-center rounded-full bg-muted p-0.5">
             <button
               onClick={() => setDesktopView("timeline")}
@@ -173,9 +168,9 @@ function BookingApp() {
           <FloorMap
             rooms={ROOMS}
             reservations={reservations}
-            date={formatDateKey(new Date())}
-            nowMinutes={new Date().getHours() * 60 + new Date().getMinutes()}
-            onSelectRoom={openForRoomToday}
+            date={formatDateKey(selectedDate)}
+            nowMinutes={effectiveNowMinutes(selectedDate)}
+            onSelectRoom={openForRoom}
           />
         )}
       </div>
@@ -184,8 +179,10 @@ function BookingApp() {
       <div className="md:hidden">
         <MobileShell
           reservations={reservations}
+          selectedDate={selectedDate}
+          onSelectedDateChange={setSelectedDate}
           onOpenNewBooking={openForNewReservation}
-          onOpenRoomBooking={openForRoomToday}
+          onOpenRoomBooking={openForRoom}
           onEditReservation={openForEdit}
           onDeleteReservation={removeReservation}
         />

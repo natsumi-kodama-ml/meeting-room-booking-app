@@ -29,7 +29,7 @@ export function TodayScheduleList({
   return (
     <div className="flex flex-col gap-3">
       <h2 className="text-sm font-medium text-muted-foreground">
-        本日の空き時間({BUSINESS_START_HOUR}:00-{BUSINESS_END_HOUR}:00)
+        空き時間({BUSINESS_START_HOUR}:00-{BUSINESS_END_HOUR}:00)
       </h2>
       {rooms.map((room) => {
         const todays = reservationsForRoomOnDate(reservations, room.id, date);

@@ -104,7 +104,7 @@ export function RoomDetail({
         </h2>
         {todays.length === 0 ? (
           <p className="rounded-xl bg-card p-4 text-sm text-muted-foreground shadow-sm">
-            本日の予定はありません
+            予定はありません
           </p>
         ) : (
           <div className="flex flex-col divide-y divide-border/70 rounded-xl bg-card px-4 shadow-sm">

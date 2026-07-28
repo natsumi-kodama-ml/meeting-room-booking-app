@@ -5,24 +5,27 @@ import { Lightning, CalendarBlank, DoorOpen, Plus } from "@phosphor-icons/react"
 import { Button } from "@/components/ui/button";
 import { ROOMS, getRoomById } from "@/lib/rooms";
 import { Reservation } from "@/lib/types";
-import { formatDateKey, formatDateLabel } from "@/lib/time";
+import { effectiveNowMinutes, formatDateKey } from "@/lib/time";
 import { cn } from "@/lib/utils";
 import { AvailableNowList } from "@/components/mobile/available-now-list";
 import { TodayScheduleList } from "@/components/mobile/today-schedule-list";
 import { FloorMap } from "@/components/floor-map";
 import { RoomDetail } from "@/components/mobile/room-detail";
 import { CurrentUserControl } from "@/components/current-user-control";
+import { DateNav } from "@/components/timeline/date-nav";
 
 type Tab = "now" | "today" | "rooms";
 
 const TABS: { key: Tab; label: string; icon: typeof Lightning }[] = [
   { key: "now", label: "今すぐ", icon: Lightning },
-  { key: "today", label: "今日の空き時間", icon: CalendarBlank },
+  { key: "today", label: "空き時間", icon: CalendarBlank },
   { key: "rooms", label: "会議室", icon: DoorOpen },
 ];
 
 type MobileShellProps = {
   reservations: Reservation[];
+  selectedDate: Date;
+  onSelectedDateChange: (date: Date) => void;
   onOpenNewBooking: () => void;
   onOpenRoomBooking: (roomId: string) => void;
   onEditReservation: (reservation: Reservation) => void;
@@ -31,6 +34,8 @@ type MobileShellProps = {
 
 export function MobileShell({
   reservations,
+  selectedDate,
+  onSelectedDateChange,
   onOpenNewBooking,
   onOpenRoomBooking,
   onEditReservation,
@@ -39,9 +44,13 @@ export function MobileShell({
   const [tab, setTab] = useState<Tab>("now");
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
 
-  const now = new Date();
-  const date = formatDateKey(now);
-  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  // "今すぐ" is always real-time, regardless of the date being browsed elsewhere.
+  const today = new Date();
+  const todayKey = formatDateKey(today);
+  const todayNowMinutes = today.getHours() * 60 + today.getMinutes();
+
+  const viewDateKey = formatDateKey(selectedDate);
+  const viewNowMinutes = effectiveNowMinutes(selectedDate);
 
   const selectedRoom = useMemo(
     () => (selectedRoomId ? getRoomById(selectedRoomId) : undefined),
@@ -50,18 +59,20 @@ export function MobileShell({
 
   return (
     <div className="flex min-h-dvh flex-col bg-muted/40">
-      <header className="flex items-center justify-between gap-3 border-b border-border/70 bg-card px-4 py-3">
-        <div>
+      <header className="flex flex-col gap-3 border-b border-border/70 bg-card px-4 py-3">
+        <div className="flex items-center justify-between gap-3">
           <h1 className="text-base font-semibold leading-tight">会議室予約</h1>
-          <p className="text-xs text-muted-foreground">{formatDateLabel(now)}</p>
+          <div className="flex items-center gap-1.5">
+            <CurrentUserControl size="sm" />
+            <Button size="sm" onClick={onOpenNewBooking} className="gap-1">
+              <Plus className="size-3.5" />
+              予約する
+            </Button>
+          </div>
         </div>
-        <div className="flex items-center gap-1.5">
-          <CurrentUserControl size="sm" />
-          <Button size="sm" onClick={onOpenNewBooking} className="gap-1">
-            <Plus className="size-3.5" />
-            予約する
-          </Button>
-        </div>
+        {!selectedRoom && tab !== "now" && (
+          <DateNav date={selectedDate} onChange={onSelectedDateChange} />
+        )}
       </header>
 
       <main className="flex-1 overflow-y-auto px-4 py-4 pb-20">
@@ -69,9 +80,9 @@ export function MobileShell({
           <RoomDetail
             room={selectedRoom}
             reservations={reservations}
-            date={date}
-            dateObj={now}
-            nowMinutes={nowMinutes}
+            date={viewDateKey}
+            dateObj={selectedDate}
+            nowMinutes={viewNowMinutes}
             onBack={() => setSelectedRoomId(null)}
             onBook={() => onOpenRoomBooking(selectedRoom.id)}
             onEditReservation={onEditReservation}
@@ -83,8 +94,8 @@ export function MobileShell({
               <AvailableNowList
                 rooms={ROOMS}
                 reservations={reservations}
-                date={date}
-                nowMinutes={nowMinutes}
+                date={todayKey}
+                nowMinutes={todayNowMinutes}
                 onSelectRoom={setSelectedRoomId}
               />
             )}
@@ -92,7 +103,7 @@ export function MobileShell({
               <TodayScheduleList
                 rooms={ROOMS}
                 reservations={reservations}
-                date={date}
+                date={viewDateKey}
                 onSelectRoom={setSelectedRoomId}
               />
             )}
@@ -100,8 +111,8 @@ export function MobileShell({
               <FloorMap
                 rooms={ROOMS}
                 reservations={reservations}
-                date={date}
-                nowMinutes={nowMinutes}
+                date={viewDateKey}
+                nowMinutes={viewNowMinutes}
                 onSelectRoom={setSelectedRoomId}
               />
             )}
