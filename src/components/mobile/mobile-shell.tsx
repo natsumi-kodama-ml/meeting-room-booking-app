@@ -1,14 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import {
-  Lightning,
-  CalendarBlank,
-  DoorOpen,
-  ListBullets,
-  MapTrifold,
-  Plus,
-} from "@phosphor-icons/react";
+import { Lightning, CalendarBlank, DoorOpen, Plus } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { ROOMS, getRoomById } from "@/lib/rooms";
 import { Reservation } from "@/lib/types";
@@ -16,13 +9,11 @@ import { formatDateKey, formatDateLabel } from "@/lib/time";
 import { cn } from "@/lib/utils";
 import { AvailableNowList } from "@/components/mobile/available-now-list";
 import { TodayScheduleList } from "@/components/mobile/today-schedule-list";
-import { RoomDirectoryList } from "@/components/mobile/room-directory-list";
 import { FloorMap } from "@/components/floor-map";
 import { RoomDetail } from "@/components/mobile/room-detail";
 import { CurrentUserControl } from "@/components/current-user-control";
 
 type Tab = "now" | "today" | "rooms";
-type RoomsView = "list" | "map";
 
 const TABS: { key: Tab; label: string; icon: typeof Lightning }[] = [
   { key: "now", label: "今すぐ", icon: Lightning },
@@ -46,7 +37,6 @@ export function MobileShell({
   onDeleteReservation,
 }: MobileShellProps) {
   const [tab, setTab] = useState<Tab>("now");
-  const [roomsView, setRoomsView] = useState<RoomsView>("list");
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
 
   const now = new Date();
@@ -107,51 +97,13 @@ export function MobileShell({
               />
             )}
             {tab === "rooms" && (
-              <div className="flex flex-col gap-3">
-                <div className="flex w-fit items-center rounded-full bg-muted p-0.5">
-                  <button
-                    onClick={() => setRoomsView("list")}
-                    className={cn(
-                      "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
-                      roomsView === "list"
-                        ? "bg-card text-foreground shadow-sm"
-                        : "text-muted-foreground"
-                    )}
-                  >
-                    <ListBullets className="size-3.5" />
-                    リスト
-                  </button>
-                  <button
-                    onClick={() => setRoomsView("map")}
-                    className={cn(
-                      "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
-                      roomsView === "map"
-                        ? "bg-card text-foreground shadow-sm"
-                        : "text-muted-foreground"
-                    )}
-                  >
-                    <MapTrifold className="size-3.5" />
-                    フロアマップ
-                  </button>
-                </div>
-                {roomsView === "list" ? (
-                  <RoomDirectoryList
-                    rooms={ROOMS}
-                    reservations={reservations}
-                    date={date}
-                    nowMinutes={nowMinutes}
-                    onSelectRoom={setSelectedRoomId}
-                  />
-                ) : (
-                  <FloorMap
-                    rooms={ROOMS}
-                    reservations={reservations}
-                    date={date}
-                    nowMinutes={nowMinutes}
-                    onSelectRoom={setSelectedRoomId}
-                  />
-                )}
-              </div>
+              <FloorMap
+                rooms={ROOMS}
+                reservations={reservations}
+                date={date}
+                nowMinutes={nowMinutes}
+                onSelectRoom={setSelectedRoomId}
+              />
             )}
           </>
         )}
