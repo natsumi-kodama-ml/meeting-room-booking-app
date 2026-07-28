@@ -401,13 +401,13 @@ export function FloorMap({
               </div>
             </div>
 
-            {/* 廊下: entrance + EV/stairs core near the front; restroom/pantry pushed to the far end, away from the entrance */}
+            {/* 廊下: EV/stairs is how people arrive on this floor, entrance/reception comes right after; restroom/pantry pushed to the far end, away from the entrance */}
             <div className="flex flex-col items-center gap-4 border-x border-border/60 bg-background py-6">
-              <EntranceStrip />
               <div className="grid grid-cols-2 gap-2">
                 <UtilityBadge icon={ElevatorIcon} label="EV" colorClass="bg-slate-600" />
                 <UtilityBadge icon={Stairs} label="階段" colorClass="bg-slate-500" />
               </div>
+              <EntranceStrip />
               <div className="flex w-full flex-1 flex-col items-center gap-2">
                 <span
                   className="text-[10px] tracking-[0.3em] text-muted-foreground"
