@@ -1,15 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { Plus } from "@phosphor-icons/react";
+import { ListBullets, MapTrifold, Plus } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { ReservationProvider, useReservations } from "@/components/reservation-provider";
 import { CurrentUserProvider } from "@/components/current-user-provider";
 import { CurrentUserControl } from "@/components/current-user-control";
 import { DateNav } from "@/components/timeline/date-nav";
 import { TimelineGrid } from "@/components/timeline/timeline-grid";
+import { FloorMap } from "@/components/floor-map";
 import { BookingDialog } from "@/components/booking/booking-dialog";
 import { MobileShell } from "@/components/mobile/mobile-shell";
+import { ROOMS } from "@/lib/rooms";
 import {
   BUSINESS_END_HOUR,
   BUSINESS_START_HOUR,
@@ -18,6 +20,9 @@ import {
   minutesToTime,
 } from "@/lib/time";
 import { Reservation } from "@/lib/types";
+import { cn } from "@/lib/utils";
+
+type DesktopView = "timeline" | "map";
 
 type DialogSeed = {
   roomId: string | null;
@@ -41,6 +46,7 @@ function BookingApp() {
   const { reservations, addReservation, updateReservation, removeReservation } =
     useReservations();
   const [selectedDate, setSelectedDate] = useState(() => new Date());
+  const [desktopView, setDesktopView] = useState<DesktopView>("timeline");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogKey, setDialogKey] = useState(0);
   const [editingReservation, setEditingReservation] = useState<Reservation | null>(
@@ -119,15 +125,59 @@ function BookingApp() {
           </div>
         </header>
 
-        <DateNav date={selectedDate} onChange={setSelectedDate} />
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          {desktopView === "timeline" ? (
+            <DateNav date={selectedDate} onChange={setSelectedDate} />
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              現在の空き状況を表示しています
+            </p>
+          )}
+          <div className="flex w-fit items-center rounded-full bg-muted p-0.5">
+            <button
+              onClick={() => setDesktopView("timeline")}
+              className={cn(
+                "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
+                desktopView === "timeline"
+                  ? "bg-card text-foreground shadow-sm"
+                  : "text-muted-foreground"
+              )}
+            >
+              <ListBullets className="size-3.5" />
+              タイムライン
+            </button>
+            <button
+              onClick={() => setDesktopView("map")}
+              className={cn(
+                "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
+                desktopView === "map"
+                  ? "bg-card text-foreground shadow-sm"
+                  : "text-muted-foreground"
+              )}
+            >
+              <MapTrifold className="size-3.5" />
+              フロアマップ
+            </button>
+          </div>
+        </div>
 
-        <TimelineGrid
-          date={selectedDate}
-          reservations={reservations}
-          onSlotSelect={openForSlot}
-          onEditReservation={openForEdit}
-          onDeleteReservation={removeReservation}
-        />
+        {desktopView === "timeline" ? (
+          <TimelineGrid
+            date={selectedDate}
+            reservations={reservations}
+            onSlotSelect={openForSlot}
+            onEditReservation={openForEdit}
+            onDeleteReservation={removeReservation}
+          />
+        ) : (
+          <FloorMap
+            rooms={ROOMS}
+            reservations={reservations}
+            date={formatDateKey(new Date())}
+            nowMinutes={new Date().getHours() * 60 + new Date().getMinutes()}
+            onSelectRoom={openForRoomToday}
+          />
+        )}
       </div>
 
       {/* Mobile: card-based views */}

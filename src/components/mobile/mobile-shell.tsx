@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 import { AvailableNowList } from "@/components/mobile/available-now-list";
 import { TodayScheduleList } from "@/components/mobile/today-schedule-list";
 import { RoomDirectoryList } from "@/components/mobile/room-directory-list";
-import { FloorMap } from "@/components/mobile/floor-map";
+import { FloorMap } from "@/components/floor-map";
 import { RoomDetail } from "@/components/mobile/room-detail";
 import { CurrentUserControl } from "@/components/current-user-control";
 
