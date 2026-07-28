@@ -1,6 +1,14 @@
 "use client";
 
-import { CaretLeft, MapPin, Plus, TrashSimple, UsersThree } from "@phosphor-icons/react";
+import {
+  CaretLeft,
+  DotsThreeVertical,
+  MapPin,
+  PencilSimple,
+  Plus,
+  TrashSimple,
+  UsersThree,
+} from "@phosphor-icons/react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -25,6 +33,7 @@ type RoomDetailProps = {
   nowMinutes: number;
   onBack: () => void;
   onBook: () => void;
+  onEditReservation: (reservation: Reservation) => void;
   onDeleteReservation: (id: string) => void;
 };
 
@@ -36,6 +45,7 @@ export function RoomDetail({
   nowMinutes,
   onBack,
   onBook,
+  onEditReservation,
   onDeleteReservation,
 }: RoomDetailProps) {
   const { myName } = useCurrentUser();
@@ -125,39 +135,48 @@ export function RoomDetail({
                   <p className="text-sm text-muted-foreground">
                     {r.startTime}-{r.endTime}
                   </p>
-                  <Popover>
-                    <PopoverTrigger
-                      render={
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          aria-label="この予約を削除"
-                        />
-                      }
-                    >
-                      <TrashSimple className="size-4 text-muted-foreground" />
-                    </PopoverTrigger>
-                    <PopoverContent
-                      align="end"
-                      className="w-56"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <div className="flex flex-col gap-2 p-1">
-                        <p className="text-sm">
-                          「{r.title}」を削除しますか？
-                        </p>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          className="gap-1.5"
-                          onClick={() => handleDelete(r)}
-                        >
-                          <TrashSimple className="size-3.5" />
-                          削除する
-                        </Button>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
+                  {mine && (
+                    <Popover>
+                      <PopoverTrigger
+                        render={
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            aria-label="予約を編集・削除"
+                          />
+                        }
+                      >
+                        <DotsThreeVertical className="size-4 text-muted-foreground" />
+                      </PopoverTrigger>
+                      <PopoverContent
+                        align="end"
+                        className="w-56"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div className="flex flex-col gap-2 p-1">
+                          <p className="text-sm font-medium">{r.title}</p>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="gap-1.5"
+                            onClick={() => onEditReservation(r)}
+                          >
+                            <PencilSimple className="size-3.5" />
+                            編集する
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            className="gap-1.5"
+                            onClick={() => handleDelete(r)}
+                          >
+                            <TrashSimple className="size-3.5" />
+                            削除する
+                          </Button>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  )}
                 </div>
               </div>
               );

@@ -17,6 +17,7 @@ import {
   formatDateKey,
   minutesToTime,
 } from "@/lib/time";
+import { Reservation } from "@/lib/types";
 
 type DialogSeed = {
   roomId: string | null;
@@ -37,10 +38,14 @@ function defaultSlotForNow(): { startTime: string; endTime: string } {
 }
 
 function BookingApp() {
-  const { reservations, addReservation, removeReservation } = useReservations();
+  const { reservations, addReservation, updateReservation, removeReservation } =
+    useReservations();
   const [selectedDate, setSelectedDate] = useState(() => new Date());
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogKey, setDialogKey] = useState(0);
+  const [editingReservation, setEditingReservation] = useState<Reservation | null>(
+    null
+  );
   const [seed, setSeed] = useState<DialogSeed>({
     roomId: null,
     date: formatDateKey(new Date()),
@@ -49,6 +54,7 @@ function BookingApp() {
   });
 
   function openForNewReservation() {
+    setEditingReservation(null);
     setSeed({
       roomId: null,
       date: formatDateKey(selectedDate),
@@ -64,16 +70,30 @@ function BookingApp() {
     startTime: string;
     endTime: string;
   }) {
+    setEditingReservation(null);
     setSeed(input);
     setDialogKey((k) => k + 1);
     setDialogOpen(true);
   }
 
   function openForRoomToday(roomId: string) {
+    setEditingReservation(null);
     setSeed({
       roomId,
       date: formatDateKey(new Date()),
       ...defaultSlotForNow(),
+    });
+    setDialogKey((k) => k + 1);
+    setDialogOpen(true);
+  }
+
+  function openForEdit(reservation: Reservation) {
+    setEditingReservation(reservation);
+    setSeed({
+      roomId: reservation.roomId,
+      date: reservation.date,
+      startTime: reservation.startTime,
+      endTime: reservation.endTime,
     });
     setDialogKey((k) => k + 1);
     setDialogOpen(true);
@@ -105,6 +125,7 @@ function BookingApp() {
           date={selectedDate}
           reservations={reservations}
           onSlotSelect={openForSlot}
+          onEditReservation={openForEdit}
           onDeleteReservation={removeReservation}
         />
       </div>
@@ -115,6 +136,7 @@ function BookingApp() {
           reservations={reservations}
           onOpenNewBooking={openForNewReservation}
           onOpenRoomBooking={openForRoomToday}
+          onEditReservation={openForEdit}
           onDeleteReservation={removeReservation}
         />
       </div>
@@ -124,8 +146,10 @@ function BookingApp() {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         seed={seed}
+        editing={editingReservation}
         reservations={reservations}
         onConfirm={addReservation}
+        onUpdate={updateReservation}
       />
     </>
   );

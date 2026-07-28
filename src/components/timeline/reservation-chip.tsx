@@ -1,10 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { toast } from "sonner";
 import { Reservation } from "@/lib/types";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { TrashSimple, UserCircle, UsersThree } from "@phosphor-icons/react";
+import { PencilSimple, TrashSimple, UserCircle, UsersThree } from "@phosphor-icons/react";
 import { useCurrentUser } from "@/components/current-user-provider";
 import { isMyReservation } from "@/lib/availability";
 import { cn } from "@/lib/utils";
@@ -12,14 +13,27 @@ import { cn } from "@/lib/utils";
 type ReservationChipProps = {
   reservation: Reservation;
   style: React.CSSProperties;
+  onEdit: (reservation: Reservation) => void;
   onDelete: (id: string) => void;
 };
 
-export function ReservationChip({ reservation, style, onDelete }: ReservationChipProps) {
+export function ReservationChip({
+  reservation,
+  style,
+  onEdit,
+  onDelete,
+}: ReservationChipProps) {
   const { myName } = useCurrentUser();
   const mine = isMyReservation(reservation, myName);
+  const [open, setOpen] = useState(false);
+
+  function handleEdit() {
+    setOpen(false);
+    onEdit(reservation);
+  }
 
   function handleDelete() {
+    setOpen(false);
     onDelete(reservation.id);
     toast.success("予約を削除しました", {
       description: `${reservation.title} ${reservation.startTime}-${reservation.endTime}`,
@@ -27,7 +41,7 @@ export function ReservationChip({ reservation, style, onDelete }: ReservationChi
   }
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         render={
           <button
@@ -80,15 +94,32 @@ export function ReservationChip({ reservation, style, onDelete }: ReservationChi
             <UsersThree className="size-3.5" />
             {reservation.attendees}名
           </p>
-          <Button
-            variant="destructive"
-            size="sm"
-            className="mt-2 gap-1.5"
-            onClick={handleDelete}
-          >
-            <TrashSimple className="size-3.5" />
-            この予約を削除
-          </Button>
+          {mine ? (
+            <div className="mt-2 flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 gap-1.5"
+                onClick={handleEdit}
+              >
+                <PencilSimple className="size-3.5" />
+                編集
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                className="flex-1 gap-1.5"
+                onClick={handleDelete}
+              >
+                <TrashSimple className="size-3.5" />
+                削除
+              </Button>
+            </div>
+          ) : (
+            <p className="mt-1 text-xs text-muted-foreground">
+              予約者・参加メンバーのみ編集・削除できます
+            </p>
+          )}
         </div>
       </PopoverContent>
     </Popover>

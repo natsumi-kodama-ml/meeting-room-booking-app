@@ -28,6 +28,7 @@ type TimelineGridProps = {
     startTime: string;
     endTime: string;
   }) => void;
+  onEditReservation: (reservation: Reservation) => void;
   onDeleteReservation: (id: string) => void;
 };
 
@@ -35,6 +36,7 @@ export function TimelineGrid({
   date,
   reservations,
   onSlotSelect,
+  onEditReservation,
   onDeleteReservation,
 }: TimelineGridProps) {
   const dateKey = formatDateKey(date);
@@ -138,6 +140,7 @@ export function TimelineGrid({
                       key={r.id}
                       reservation={r}
                       style={{ left: `${left}%`, width: `${width}%` }}
+                      onEdit={onEditReservation}
                       onDelete={onDeleteReservation}
                     />
                   );

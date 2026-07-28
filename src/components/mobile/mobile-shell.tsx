@@ -25,6 +25,7 @@ type MobileShellProps = {
   reservations: Reservation[];
   onOpenNewBooking: () => void;
   onOpenRoomBooking: (roomId: string) => void;
+  onEditReservation: (reservation: Reservation) => void;
   onDeleteReservation: (id: string) => void;
 };
 
@@ -32,6 +33,7 @@ export function MobileShell({
   reservations,
   onOpenNewBooking,
   onOpenRoomBooking,
+  onEditReservation,
   onDeleteReservation,
 }: MobileShellProps) {
   const [tab, setTab] = useState<Tab>("now");
@@ -72,6 +74,7 @@ export function MobileShell({
             nowMinutes={nowMinutes}
             onBack={() => setSelectedRoomId(null)}
             onBook={() => onOpenRoomBooking(selectedRoom.id)}
+            onEditReservation={onEditReservation}
             onDeleteReservation={onDeleteReservation}
           />
         ) : (

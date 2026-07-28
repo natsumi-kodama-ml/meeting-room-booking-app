@@ -51,27 +51,36 @@ type BookingDialogProps = {
     startTime: string;
     endTime: string;
   };
+  /** When set, the dialog edits this existing reservation instead of creating a new one. */
+  editing?: Reservation | null;
   reservations: Reservation[];
   onConfirm: (input: Omit<Reservation, "id">) => void;
+  onUpdate: (id: string, input: Omit<Reservation, "id">) => void;
 };
 
 export function BookingDialog({
   open,
   onOpenChange,
   seed,
+  editing,
   reservations,
   onConfirm,
+  onUpdate,
 }: BookingDialogProps) {
   const { myName } = useCurrentUser();
-  const [step, setStep] = useState(seed.roomId ? 1 : 0);
-  const [date, setDate] = useState(seed.date);
-  const [startTime, setStartTime] = useState(seed.startTime);
-  const [endTime, setEndTime] = useState(seed.endTime);
-  const [roomId, setRoomId] = useState<string | null>(seed.roomId);
-  const [title, setTitle] = useState("");
-  const [organizer, setOrganizer] = useState(myName);
-  const [attendees, setAttendees] = useState(1);
-  const [membersText, setMembersText] = useState("");
+  const [step, setStep] = useState(editing || seed.roomId ? 1 : 0);
+  const [date, setDate] = useState(editing?.date ?? seed.date);
+  const [startTime, setStartTime] = useState(editing?.startTime ?? seed.startTime);
+  const [endTime, setEndTime] = useState(editing?.endTime ?? seed.endTime);
+  const [roomId, setRoomId] = useState<string | null>(
+    editing?.roomId ?? seed.roomId
+  );
+  const [title, setTitle] = useState(editing?.title ?? "");
+  const [organizer, setOrganizer] = useState(editing?.organizer ?? myName);
+  const [attendees, setAttendees] = useState(editing?.attendees ?? 1);
+  const [membersText, setMembersText] = useState(
+    editing?.members.join("、") ?? ""
+  );
 
   const members = membersText
     .split(/[、,]/)
@@ -99,7 +108,7 @@ export function BookingDialog({
 
   function handleConfirm() {
     if (!roomId) return;
-    onConfirm({
+    const input = {
       roomId,
       date,
       startTime,
@@ -108,18 +117,26 @@ export function BookingDialog({
       organizer: organizer.trim(),
       attendees,
       members,
-    });
+    };
+    if (editing) {
+      onUpdate(editing.id, input);
+      toast.success("予約を更新しました", {
+        description: `${selectedRoom?.name} ${startTime}-${endTime}`,
+      });
+    } else {
+      onConfirm(input);
+      toast.success("予約を確定しました", {
+        description: `${selectedRoom?.name} ${startTime}-${endTime}`,
+      });
+    }
     onOpenChange(false);
-    toast.success("予約を確定しました", {
-      description: `${selectedRoom?.name} ${startTime}-${endTime}`,
-    });
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>会議室を予約</DialogTitle>
+          <DialogTitle>{editing ? "予約を編集" : "会議室を予約"}</DialogTitle>
           <DialogDescription>
             ステップ {step + 1} / {STEPS.length}: {STEPS[step]}を選択してください
           </DialogDescription>
@@ -235,7 +252,8 @@ export function BookingDialog({
                   room.id,
                   date,
                   startTime,
-                  endTime
+                  endTime,
+                  editing?.id
                 );
                 const selected = roomId === room.id;
                 return (
@@ -375,7 +393,9 @@ export function BookingDialog({
               次へ
             </Button>
           ) : (
-            <Button onClick={handleConfirm}>予約を確定する</Button>
+            <Button onClick={handleConfirm}>
+              {editing ? "変更を保存する" : "予約を確定する"}
+            </Button>
           )}
         </DialogFooter>
       </DialogContent>
