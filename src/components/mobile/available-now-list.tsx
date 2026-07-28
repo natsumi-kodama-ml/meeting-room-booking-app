@@ -27,24 +27,12 @@ export function AvailableNowList({
   nowMinutes,
   onSelectRoom,
 }: AvailableNowListProps) {
-  const withinBusinessHours = nowMinutes < BUSINESS_END_HOUR * 60;
   const availableRooms = rooms.filter((room) =>
     isRoomAvailableNow(reservations, room.id, date, nowMinutes)
   );
   const busyRooms = rooms.filter(
     (room) => !isRoomAvailableNow(reservations, room.id, date, nowMinutes)
   );
-
-  if (!withinBusinessHours) {
-    return (
-      <div className="flex flex-col items-center gap-1.5 rounded-xl bg-card p-8 text-center shadow-sm">
-        <p className="text-sm font-medium">営業時間外です</p>
-        <p className="text-xs text-muted-foreground">
-          会議室の利用時間は 9:00-19:00 です
-        </p>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col gap-5">

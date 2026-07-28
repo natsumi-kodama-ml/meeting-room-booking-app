@@ -1,5 +1,5 @@
-export const BUSINESS_START_HOUR = 9;
-export const BUSINESS_END_HOUR = 19;
+export const BUSINESS_START_HOUR = 0;
+export const BUSINESS_END_HOUR = 24;
 export const SLOT_MINUTES = 30;
 
 /** "HH:mm" -> minutes since midnight */

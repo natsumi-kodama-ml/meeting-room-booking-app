@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import {
   Armchair,
   Coffee,
@@ -338,6 +339,13 @@ export function FloorMap({
   );
   const boothSeat = rooms.find((r) => r.roomType === "オープン");
 
+  const receptionRef = useRef<HTMLDivElement>(null);
+  const officeRef = useRef<HTMLDivElement>(null);
+
+  function scrollToSection(ref: React.RefObject<HTMLDivElement | null>) {
+    ref.current?.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
+  }
+
   function statusFor(room: Room) {
     const available = isRoomAvailableNow(reservations, room.id, date, nowMinutes);
     return {
@@ -371,7 +379,25 @@ export function FloorMap({
         next to the corridor, with a door onto it" relationship. On phones,
         this scrolls horizontally rather than reflowing.
       */}
-      <div className="w-full overflow-x-auto">
+      {/* mobile-only: jump straight to a section instead of dragging across the whole map */}
+      <div className="flex gap-1.5 md:hidden">
+        <button
+          type="button"
+          onClick={() => scrollToSection(receptionRef)}
+          className="shrink-0 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground active:bg-muted/60"
+        >
+          来客スペース
+        </button>
+        <button
+          type="button"
+          onClick={() => scrollToSection(officeRef)}
+          className="shrink-0 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground active:bg-muted/60"
+        >
+          執務室エリア
+        </button>
+      </div>
+
+      <div className="w-full overflow-x-auto snap-x snap-mandatory scroll-smooth">
         <div className="relative min-w-[720px] rounded-lg border-2 border-foreground/40 bg-card">
           <span className="absolute left-2 top-2 z-10 rounded-md bg-foreground px-1.5 py-0.5 text-[10px] font-semibold text-background">
             4F
@@ -379,7 +405,7 @@ export function FloorMap({
 
           <div className="grid grid-cols-[minmax(0,4fr)_minmax(0,2fr)_minmax(0,7fr)]">
             {/* 来客スペース: guest-facing meeting rooms */}
-            <div className="flex min-w-0 flex-col gap-2 p-2 pt-9">
+            <div ref={receptionRef} className="flex min-w-0 snap-start flex-col gap-2 p-2 pt-9">
               <p className="truncate px-1 text-[11px] font-medium text-muted-foreground">
                 来客スペース
               </p>
@@ -402,7 +428,7 @@ export function FloorMap({
             </div>
 
             {/* 廊下: EV/stairs is how people arrive on this floor, entrance/reception comes right after; restroom/pantry pushed to the far end, away from the entrance */}
-            <div className="flex flex-col items-center gap-4 border-x border-border/60 bg-background py-6">
+            <div className="flex snap-start flex-col items-center gap-4 border-x border-border/60 bg-background py-6">
               <div className="grid grid-cols-2 gap-2">
                 <UtilityBadge icon={ElevatorIcon} label="EV" colorClass="bg-slate-600" />
                 <UtilityBadge icon={Stairs} label="階段" colorClass="bg-slate-500" />
@@ -424,7 +450,7 @@ export function FloorMap({
             </div>
 
             {/* 執務室エリア: open workspace (with an embedded box-seat nook) + enclosed meeting rooms */}
-            <div className="flex min-w-0 flex-col gap-2 p-2 pt-9">
+            <div ref={officeRef} className="flex min-w-0 snap-start flex-col gap-2 p-2 pt-9">
               <p className="truncate px-1 text-[11px] font-medium text-muted-foreground">
                 執務室エリア
               </p>
