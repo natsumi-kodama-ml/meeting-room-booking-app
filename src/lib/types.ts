@@ -1,8 +1,12 @@
+export type RoomArea = "来客スペース" | "執務室内";
+export type RoomType = "個室" | "オープン";
+
 export type Room = {
   id: string;
   name: string;
   capacity: number;
-  location: string;
+  area: RoomArea;
+  roomType: RoomType;
   equipment: string[];
 };
 

@@ -1,7 +1,8 @@
 "use client";
 
-import { CaretRight, MapPin, UsersThree } from "@phosphor-icons/react";
+import { CaretRight } from "@phosphor-icons/react";
 import { Badge } from "@/components/ui/badge";
+import { RoomMeta } from "@/components/room-meta";
 import { Room } from "@/lib/types";
 import { Reservation } from "@/lib/types";
 import {
@@ -70,13 +71,7 @@ export function AvailableNowList({
             >
               <div className="flex min-w-0 flex-col gap-1">
                 <p className="font-medium leading-tight">{room.name}</p>
-                <p className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <MapPin className="size-3.5 shrink-0" />
-                  {room.location}
-                  <span className="mx-0.5">・</span>
-                  <UsersThree className="size-3.5 shrink-0" />
-                  {room.capacity}名
-                </p>
+                <RoomMeta room={room} className="text-xs" />
                 <p className="text-xs font-medium text-primary">{untilLabel}</p>
               </div>
               <CaretRight className="size-4 shrink-0 text-muted-foreground" />
@@ -98,13 +93,7 @@ export function AvailableNowList({
             >
               <div className="flex min-w-0 flex-col gap-1">
                 <p className="font-medium leading-tight">{room.name}</p>
-                <p className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <MapPin className="size-3.5 shrink-0" />
-                  {room.location}
-                  <span className="mx-0.5">・</span>
-                  <UsersThree className="size-3.5 shrink-0" />
-                  {room.capacity}名
-                </p>
+                <RoomMeta room={room} className="text-xs" />
               </div>
               <Badge variant="secondary" className="shrink-0 font-normal">
                 使用中

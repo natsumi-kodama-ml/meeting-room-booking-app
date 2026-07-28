@@ -3,16 +3,15 @@
 import {
   CaretLeft,
   DotsThreeVertical,
-  MapPin,
   PencilSimple,
   Plus,
   TrashSimple,
-  UsersThree,
 } from "@phosphor-icons/react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { RoomMeta } from "@/components/room-meta";
 import { Room, Reservation } from "@/lib/types";
 import {
   reservationsForRoomOnDate,
@@ -75,13 +74,7 @@ export function RoomDetail({
           <h1 className="text-lg font-semibold leading-tight">{room.name}</h1>
           <RoomStatusBadge available={available} />
         </div>
-        <p className="flex items-center gap-1 text-sm text-muted-foreground">
-          <MapPin className="size-4 shrink-0" />
-          {room.location}
-          <span className="mx-0.5">・</span>
-          <UsersThree className="size-4 shrink-0" />
-          定員{room.capacity}名
-        </p>
+        <RoomMeta room={room} className="text-sm" iconClassName="size-4" />
         {room.equipment.length > 0 && (
           <div className="flex flex-wrap gap-1.5 pt-1">
             {room.equipment.map((eq) => (

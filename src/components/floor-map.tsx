@@ -332,11 +332,11 @@ export function FloorMap({
   nowMinutes,
   onSelectRoom,
 }: FloorMapProps) {
-  const reception = rooms.filter((r) => r.location.includes("来客スペース"));
+  const reception = rooms.filter((r) => r.area === "来客スペース");
   const officeRooms = rooms.filter(
-    (r) => r.location.includes("執務室内") && !r.location.includes("オープン")
+    (r) => r.area === "執務室内" && r.roomType !== "オープン"
   );
-  const boothSeat = rooms.find((r) => r.location.includes("オープン"));
+  const boothSeat = rooms.find((r) => r.roomType === "オープン");
 
   function statusFor(room: Room) {
     const available = isRoomAvailableNow(reservations, room.id, date, nowMinutes);
@@ -384,6 +384,7 @@ export function FloorMap({
                 来客スペース
               </p>
               <div className="flex min-h-0 flex-1 flex-col gap-3">
+                <WaitingLounge />
                 {reception.map((room) => {
                   const { available, statusLabel } = statusFor(room);
                   return (
@@ -397,23 +398,15 @@ export function FloorMap({
                     />
                   );
                 })}
-                <WaitingLounge />
               </div>
             </div>
 
-            {/* 廊下: entrance opens directly onto it, with the EV/stairs core nearby, then open walkway */}
+            {/* 廊下: entrance + EV/stairs core near the front; restroom/pantry pushed to the far end, away from the entrance */}
             <div className="flex flex-col items-center gap-4 border-x border-border/60 bg-background py-6">
               <EntranceStrip />
-              {/* EV/stairs form one core; restroom/pantry are a separate nook, offset diagonally so the toilet doesn't face the elevator */}
-              <div className="flex flex-col items-center gap-3">
-                <div className="grid grid-cols-2 gap-2">
-                  <UtilityBadge icon={ElevatorIcon} label="EV" colorClass="bg-slate-600" />
-                  <UtilityBadge icon={Stairs} label="階段" colorClass="bg-slate-500" />
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <UtilityBadge icon={Coffee} label="給湯室" colorClass="bg-emerald-600" />
-                  <UtilityBadge icon={Toilet} label="トイレ" colorClass="bg-sky-500" />
-                </div>
+              <div className="grid grid-cols-2 gap-2">
+                <UtilityBadge icon={ElevatorIcon} label="EV" colorClass="bg-slate-600" />
+                <UtilityBadge icon={Stairs} label="階段" colorClass="bg-slate-500" />
               </div>
               <div className="flex w-full flex-1 flex-col items-center gap-2">
                 <span
@@ -423,6 +416,10 @@ export function FloorMap({
                   廊下
                 </span>
                 <div className="w-px flex-1 border-l border-dashed border-border/70" />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <UtilityBadge icon={Coffee} label="給湯室" colorClass="bg-emerald-600" />
+                <UtilityBadge icon={Toilet} label="トイレ" colorClass="bg-sky-500" />
               </div>
             </div>
 

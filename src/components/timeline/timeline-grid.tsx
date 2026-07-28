@@ -1,6 +1,6 @@
 "use client";
 
-import { ROOMS } from "@/lib/rooms";
+import { ROOMS, roomLocationLabel } from "@/lib/rooms";
 import { Reservation } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { ReservationChip } from "@/components/timeline/reservation-chip";
@@ -98,7 +98,7 @@ export function TimelineGrid({
               <div className="border-b border-border/70 p-3">
                 <p className="text-sm font-medium leading-tight">{room.name}</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  {room.location} ・ 定員{room.capacity}名
+                  {roomLocationLabel(room)} ・ 定員{room.capacity}名
                 </p>
                 {room.equipment.length > 0 && (
                   <div className="mt-1.5 flex flex-wrap gap-1">

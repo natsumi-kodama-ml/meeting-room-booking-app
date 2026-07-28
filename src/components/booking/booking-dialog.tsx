@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ROOMS, getRoomById } from "@/lib/rooms";
+import { ROOMS, getRoomById, roomLocationLabel } from "@/lib/rooms";
 import { Reservation } from "@/lib/types";
 import { isRoomAvailable } from "@/lib/validation";
 import {
@@ -273,7 +273,7 @@ export function BookingDialog({
                     <div>
                       <p className="text-sm font-medium">{room.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {room.location} ・ 定員{room.capacity}名
+                        {roomLocationLabel(room)} ・ 定員{room.capacity}名
                         {room.equipment.length > 0 &&
                           ` ・ ${room.equipment.join(" / ")}`}
                       </p>
@@ -354,7 +354,7 @@ export function BookingDialog({
                 <DoorOpen className="size-4 text-muted-foreground" />
                 <span className="font-medium">{selectedRoom.name}</span>
                 <span className="text-muted-foreground">
-                  ({selectedRoom.location})
+                  ({roomLocationLabel(selectedRoom)})
                 </span>
               </div>
               <div className="flex items-center gap-2 text-sm">
