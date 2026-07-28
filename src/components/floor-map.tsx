@@ -170,7 +170,7 @@ function RoomBox({
       <span
         aria-hidden
         className={cn(
-          "absolute top-1/2 hidden size-5 -translate-y-1/2 items-center justify-center rounded-full border-2 bg-card text-muted-foreground sm:flex",
+          "absolute top-1/2 flex size-5 -translate-y-1/2 items-center justify-center rounded-full border-2 bg-card text-muted-foreground",
           side === "left" ? "-right-2.5" : "-left-2.5",
           available ? "border-primary/50" : "border-foreground/25"
         )}
@@ -273,11 +273,11 @@ function BoothSeat({
 /** One desk pod/cluster, separated from neighboring pods by an aisle. */
 function DeskBlock({ count }: { count: number }) {
   return (
-    <div className="grid grid-cols-2 gap-1 rounded-sm bg-background/60 p-1.5">
+    <div className="grid grid-cols-2 gap-1.5 rounded-sm bg-background/60 p-2">
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="aspect-[3/2] rounded-[2px] border border-foreground/20 bg-foreground/[0.06]"
+          className="aspect-[3/2] min-w-8 rounded-[3px] border border-foreground/20 bg-foreground/[0.06]"
         />
       ))}
     </div>
@@ -286,11 +286,14 @@ function DeskBlock({ count }: { count: number }) {
 
 function OpenWorkspace({ children }: { children?: React.ReactNode }) {
   return (
-    <div className="flex min-w-0 flex-1 flex-col gap-2 rounded-md border border-border bg-muted/30 p-2.5">
+    <div
+      style={{ minHeight: "260px" }}
+      className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-md border border-border bg-muted/30 p-3"
+    >
       <p className="truncate text-[11px] font-medium text-muted-foreground">
-        執務室(フリーアドレス席)
+        執務室(フリーアドレス席・18席)
       </p>
-      <div className="flex flex-wrap gap-2.5">
+      <div className="flex flex-wrap gap-3">
         <DeskBlock count={6} />
         <DeskBlock count={6} />
         <DeskBlock count={6} />
@@ -343,88 +346,102 @@ export function FloorMap({
         </div>
       </div>
 
-      <div className="relative w-full overflow-visible rounded-lg border-2 border-foreground/40 bg-card p-3 pt-9 sm:overflow-hidden sm:p-0">
-        <span className="absolute left-2 top-2 z-10 rounded-md bg-foreground px-1.5 py-0.5 text-[10px] font-semibold text-background">
-          4F
-        </span>
+      {/*
+        The floor plan keeps one fixed spatial layout (rooms flanking a
+        central corridor) at every screen size, instead of restacking into
+        a column order on narrow screens — restacking breaks the "room sits
+        next to the corridor, with a door onto it" relationship. On phones,
+        this scrolls horizontally rather than reflowing.
+      */}
+      <div className="w-full overflow-x-auto">
+        <div className="relative min-w-[720px] rounded-lg border-2 border-foreground/40 bg-card">
+          <span className="absolute left-2 top-2 z-10 rounded-md bg-foreground px-1.5 py-0.5 text-[10px] font-semibold text-background">
+            4F
+          </span>
 
-        <div className="flex flex-col gap-5 sm:grid sm:aspect-[16/13] sm:grid-cols-[minmax(0,4fr)_minmax(0,2fr)_minmax(0,7fr)] sm:gap-0">
-          {/* 来客スペース: entrance + guest-facing meeting rooms */}
-          <div className="flex min-w-0 flex-col gap-2 sm:gap-2 sm:p-2 sm:pt-8">
-            <p className="truncate px-1 text-[11px] font-medium text-muted-foreground">
-              来客スペース
-            </p>
-            <div className="flex min-h-0 flex-1 flex-col gap-3">
-              {reception.map((room) => {
-                const { available, statusLabel } = statusFor(room);
-                return (
-                  <RoomBox
-                    key={room.id}
-                    room={room}
-                    side="left"
-                    available={available}
-                    statusLabel={statusLabel}
-                    onSelect={() => onSelectRoom(room.id)}
-                  />
-                );
-              })}
-            </div>
-          </div>
-
-          {/* 廊下: entrance opens directly onto it, with the EV/stairs core nearby, then open walkway */}
-          <div className="flex flex-col items-center gap-3 rounded-md border border-border/60 bg-background p-3 sm:gap-4 sm:rounded-none sm:border-0 sm:border-x sm:border-border/60 sm:bg-background sm:py-6">
-            <EntranceStrip />
-            <div className="flex flex-row flex-wrap justify-center gap-2 sm:flex-col">
-              <UtilityBadge icon={ElevatorIcon} label="EV" colorClass="bg-slate-600" />
-              <UtilityBadge icon={Stairs} label="階段" colorClass="bg-slate-500" />
-              <UtilityBadge icon={Toilet} label="トイレ" colorClass="bg-sky-500" />
-              <UtilityBadge icon={Coffee} label="給湯室" colorClass="bg-emerald-600" />
-            </div>
-            <div className="hidden w-full flex-1 flex-col items-center gap-2 sm:flex">
-              <span
-                className="text-[10px] tracking-[0.3em] text-muted-foreground"
-                style={{ writingMode: "vertical-rl" }}
-              >
-                廊下
-              </span>
-              <div className="w-px flex-1 border-l border-dashed border-border/70" />
-            </div>
-          </div>
-
-          {/* 執務室エリア: open workspace (with an embedded box-seat nook) + enclosed meeting rooms */}
-          <div className="flex min-w-0 flex-col gap-2 sm:gap-2 sm:p-2 sm:pt-8">
-            <p className="truncate px-1 text-[11px] font-medium text-muted-foreground">
-              執務室エリア
-            </p>
-            <div className="flex min-h-0 flex-1 flex-col gap-3 sm:flex-row sm:items-start">
-              <OpenWorkspace>
-                {boothSeat &&
-                  (() => {
-                    const { available, statusLabel } = statusFor(boothSeat);
-                    return (
-                      <BoothSeat
-                        room={boothSeat}
-                        available={available}
-                        statusLabel={statusLabel}
-                        onSelect={() => onSelectRoom(boothSeat.id)}
-                      />
-                    );
-                  })()}
-              </OpenWorkspace>
-              <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-[1.4]">
-                {officeRooms.map((room) => {
+          <div className="grid grid-cols-[minmax(0,4fr)_minmax(0,2fr)_minmax(0,7fr)]">
+            {/* 来客スペース: guest-facing meeting rooms */}
+            <div className="flex min-w-0 flex-col gap-2 p-2 pt-9">
+              <p className="truncate px-1 text-[11px] font-medium text-muted-foreground">
+                来客スペース
+              </p>
+              <div className="flex min-h-0 flex-1 flex-col gap-3">
+                {reception.map((room) => {
                   const { available, statusLabel } = statusFor(room);
                   return (
                     <RoomBox
                       key={room.id}
                       room={room}
-                      side="right"
+                      side="left"
                       available={available}
                       statusLabel={statusLabel}
                       onSelect={() => onSelectRoom(room.id)}
                     />
                   );
                 })}
+              </div>
+            </div>
+
+            {/* 廊下: entrance opens directly onto it, with the EV/stairs core nearby, then open walkway */}
+            <div className="flex flex-col items-center gap-4 border-x border-border/60 bg-background py-6">
+              <EntranceStrip />
+              {/* EV/stairs form one core; restroom/pantry are a separate nook nearby */}
+              <div className="flex flex-col items-center gap-3">
+                <div className="grid grid-cols-2 gap-2">
+                  <UtilityBadge icon={ElevatorIcon} label="EV" colorClass="bg-slate-600" />
+                  <UtilityBadge icon={Stairs} label="階段" colorClass="bg-slate-500" />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <UtilityBadge icon={Toilet} label="トイレ" colorClass="bg-sky-500" />
+                  <UtilityBadge icon={Coffee} label="給湯室" colorClass="bg-emerald-600" />
+                </div>
+              </div>
+              <div className="flex w-full flex-1 flex-col items-center gap-2">
+                <span
+                  className="text-[10px] tracking-[0.3em] text-muted-foreground"
+                  style={{ writingMode: "vertical-rl" }}
+                >
+                  廊下
+                </span>
+                <div className="w-px flex-1 border-l border-dashed border-border/70" />
+              </div>
+            </div>
+
+            {/* 執務室エリア: open workspace (with an embedded box-seat nook) + enclosed meeting rooms */}
+            <div className="flex min-w-0 flex-col gap-2 p-2 pt-9">
+              <p className="truncate px-1 text-[11px] font-medium text-muted-foreground">
+                執務室エリア
+              </p>
+              <div className="flex min-h-0 flex-1 items-start gap-3">
+                <OpenWorkspace>
+                  {boothSeat &&
+                    (() => {
+                      const { available, statusLabel } = statusFor(boothSeat);
+                      return (
+                        <BoothSeat
+                          room={boothSeat}
+                          available={available}
+                          statusLabel={statusLabel}
+                          onSelect={() => onSelectRoom(boothSeat.id)}
+                        />
+                      );
+                    })()}
+                </OpenWorkspace>
+                <div className="flex min-w-0 flex-1 flex-[1.4] flex-col gap-3">
+                  {officeRooms.map((room) => {
+                    const { available, statusLabel } = statusFor(room);
+                    return (
+                      <RoomBox
+                        key={room.id}
+                        room={room}
+                        side="right"
+                        available={available}
+                        statusLabel={statusLabel}
+                        onSelect={() => onSelectRoom(room.id)}
+                      />
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </div>
