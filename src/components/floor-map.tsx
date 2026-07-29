@@ -317,9 +317,9 @@ function OpenWorkspace({ children }: { children?: React.ReactNode }) {
         <DeskBlock count={6} />
         <DeskBlock count={6} />
       </div>
-      <div className="flex items-center gap-1.5 rounded-sm border border-border bg-background px-2 py-1.5 text-muted-foreground">
+      <div className="flex w-1/2 min-w-0 shrink-0 self-start items-center gap-1.5 rounded-sm border border-border bg-background px-2 py-1.5 text-muted-foreground">
         <Package className="size-3.5 shrink-0" />
-        <span className="text-[11px] font-medium">倉庫・備品庫</span>
+        <span className="truncate text-[11px] font-medium">倉庫・備品庫</span>
       </div>
       {children}
     </div>
@@ -443,7 +443,7 @@ export function FloorMap({
                 </span>
                 <div className="w-px flex-1 border-l border-dashed border-border/70" />
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="flex flex-col gap-4">
                 <UtilityBadge icon={Coffee} label="給湯室" colorClass="bg-emerald-600" />
                 <UtilityBadge icon={Toilet} label="トイレ" colorClass="bg-sky-500" />
               </div>
